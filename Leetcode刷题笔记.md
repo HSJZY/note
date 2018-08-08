@@ -1189,5 +1189,56 @@ public:
     }
 };
 ```
+----
+### 42. 接雨水
+> * 给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
+上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。 感谢 Marcos 贡献此图。
+示例:
+输入: [0,1,0,2,1,0,1,3,2,1,2,1]
+输出: 6
+> * 从左到右。依次得到左边最大的数，从右到左，依次得到右边最大的数字，每一个位置上得到的左右最小的那个减去当前的列的实体即为盛水的体积。
+```
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        if(height.size()<=2)
+            return 0;
+        vector<int> left2right(height.size(),0),right2left(height.size(),0);
+        int left_max=0,right_max=0;
+        left2right[0]=height[0];
+        right2left[height.size()-1]=height[height.size()-1];
+        for(int i=1;i<height.size();i++)
+        {
+            left2right[i]=max(height[i],left2right[i-1]);
+            right2left[height.size()-i-1]=max(height[height.size()-i-1],right2left[height.size()-i]);
+        }
+        int total_sum=0;
+        for(int i=0;i<height.size();i++)
+        {
+            total_sum+=min(left2right[i],right2left[i])-height[i];
+        }
+        return total_sum;
+    }
+};
+```
 
+> * 以上这种空间复杂度为O(n),以下空间复杂度为Ｏ(1)
+```cpp
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int l = 0, r = height.size() - 1;
+        int res = 0;
+        int level = 0;
+        while(l < r)
+        {
+            int lower = height[l] < height[r] ? height[l++] : height[r--];
+            level = max(lower, level);
+            res += level - lower;
+        }
+        return res;
+    }
+};
+```
+----
 ---
