@@ -1241,4 +1241,412 @@ public:
 };
 ```
 ----
+### 43. 字符串相乘
+> * 
+给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，它们的乘积也表示为字符串形式。
+示例 1:
+输入: num1 = "2", num2 = "3"
+输出: "6"
+> * 不喜欢，下一道
+```cpp
+string multiply(string num1, string num2) {
+    string sum(num1.size() + num2.size(), '0');
+    
+    for (int i = num1.size() - 1; 0 <= i; --i) {
+        int carry = 0;
+        for (int j = num2.size() - 1; 0 <= j; --j) {
+            int tmp = (sum[i + j + 1] - '0') + (num1[i] - '0') * (num2[j] - '0') + carry;
+            sum[i + j + 1] = tmp % 10 + '0';
+            carry = tmp / 10;
+        }
+        sum[i] += carry;
+    }
+    
+    size_t startpos = sum.find_first_not_of("0");
+    if (string::npos != startpos) {
+        return sum.substr(startpos);
+    }
+    return "0";
+}
+```
 ---
+### 46. 全排列
+> * 给定一个没有重复数字的序列，返回其所有可能的全排列
+输入: [1,2,3]
+输出:
+[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+> * 深度优先搜索,置换两个数的，保持第一个不变，下一个数开始，递归，得到结果
+```cpp
+class Solution {
+public:
+    
+    vector<vector<int>> permute(vector<int>& nums) {
+        vector<vector<int>> result;
+        subPermute(nums,0,result);
+        return result;
+    }
+    void subPermute(vector<int>& nums,int begin,vector<vector<int>>& result)
+    {
+        if(begin>=nums.size())
+        {
+            result.push_back(nums);
+            return;
+        }
+        for(int i=begin;i<nums.size();i++)
+        {
+            swap(nums[begin],nums[i]);
+            subPermute(nums,begin+1,result);
+            swap(nums[begin],nums[i]);
+        }
+    }
+};
+```
+----
+### 47. 全排列 II
+> * 给定一个可包含重复数字的序列，返回所有不重复的全排列。
+示例:
+输入: [1,1,2]
+输出:
+[
+  [1,1,2],
+  [1,2,1],
+  [2,1,1]
+]
+> * 先进行一下排序，用于后期跳过相同的数，
+```cpp
+class Solution {
+public:
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        
+        vector<vector<int>> result;
+        sort(nums.begin(),nums.end());
+        subPermute(nums,0,result);
+        return result;
+    }
+    
+    void subPermute(vector<int> nums,int begin,vector<vector<int>>& result)
+    {
+        if(begin==nums.size()-1)
+        {
+            result.push_back(nums);
+            return;
+        }
+        for(int i=begin;i<nums.size();i++)
+        {
+            
+            if(i!=begin && nums[i]==nums[begin]) continue;
+            swap(nums[begin],nums[i]);
+            subPermute(nums,begin+1,result);
+            //swap(nums[begin],nums[i]);
+            
+        }
+    }
+};
+
+```
+----
+### 48. 旋转图像
+> * 给定一个 n × n 的二维矩阵表示一个图像。
+将图像顺时针旋转 90 度。
+说明：
+你必须在原地旋转图像，这意味着你需要直接修改输入的二维矩阵。请不要使用另一个矩阵来旋转图像。
+> * 先上下对称，再沿对角线对称
+```cpp
+class Solution {
+public:
+    void rotate(vector<vector<int>>& matrix) {
+
+        for(int i=0;i<matrix[0].size()/2;i++)
+        {
+            for(int j=0;j<matrix[i].size();j++)
+            {
+                swap(matrix[i][j],matrix[matrix.size()-i-1][j]);
+            }
+        }
+        for(int i=0;i<matrix.size();i++)
+        {
+            for(int j=0;j<i+1;j++)
+            {
+                swap(matrix[i][j],matrix[j][i]);
+            }
+        }
+        
+    }
+};
+```
+----
+### 49. 字母异位词分组
+> * 给定一个字符串数组，将字母异位词组合在一起。字母异位词指字母相同，但排列不同的字符串。
+示例:
+输入: ["eat", "tea", "tan", "ate", "nat", "bat"],
+输出:
+[
+  ["ate","eat","tea"],
+  ["nat","tan"],
+  ["bat"]
+]
+> * 我觉得这又和我的想法一致了,用multiset进行多个序列的存储，因为字母一样，只是顺序不同，sort之后必然对应着唯一的上升序列，可以用于哈希表的key值，
+```cpp
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map<string,multiset<string>> map;
+        for(string s : strs)
+        {
+            string t=s;
+            sort(t.begin(),t.end());
+            map[t].insert(s);
+        }
+        
+        vector<vector<string>> anagrams;
+        for(auto m : map)
+        {
+            vector<string> anagram(m.second.begin(),m.second.end());
+            anagrams.push_back(anagram);
+            
+        }
+        return anagrams;
+    }
+};
+```
+----
+### 50. Pow(x, n)
+> * 实现 pow(x, n) ，即计算 x 的 n 次幂函数。
+示例 1:
+输入: 2.00000, 10
+输出: 1024.00000
+> * 折半法，可以将时间复杂度降低到O(log(n))
+
+```
+class Solution {
+public:
+    double myPow(double x, int n) {
+        if(n<0)return 1/power(x,-n);
+        return power(x,n);
+    }
+    double power(double x,int n)
+    {
+        if(n==0)
+            return 1;
+        double half=power(x,n/2);
+        if(n%2==0)
+            return half*half;
+        else
+            return x*half*half;
+    }
+
+
+};
+```
+----
+### 53. 最大子序和
+> *给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+示例:
+输入: [-2,1,-3,4,-1,2,1,-5,4],
+输出: 6
+解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
+> * 只要前边的数累加起来大于０，即需要包含那一部分的数，同时每次都判断更新最大值。
+```cpp
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        if(nums.size()==0)
+            return 0x80000000;
+        int maxEnding=0;
+        int maxSofar=0,maxMinus=0x80000000;
+        bool isMaxMinus=false;
+        for(int i=0;i<nums.size();i++)
+        {
+            maxSofar=max(maxSofar+nums[i],0);
+            maxEnding=max(maxSofar,maxEnding);
+            if(nums[i]<=0)
+            {
+                if(nums[i]==0x80000000)
+                    isMaxMinus=true;
+                maxMinus=max(maxMinus,nums[i]);
+            }
+        }
+        if(maxEnding==0)
+        {
+            if(maxMinus>0x80000000||isMaxMinus)
+                return maxMinus;
+        }
+        return maxEnding;
+    }
+};
+```
+
+----
+###54. 螺旋矩阵
+> * 给定一个包含 m x n 个元素的矩阵（m 行, n 列），请按照顺时针螺旋顺序，返回矩阵中的所有元素。
+示例 1:
+输入:
+[
+ [ 1, 2, 3 ],
+ [ 4, 5, 6 ],
+ [ 7, 8, 9 ]
+]
+输出: [1,2,3,6,9,8,7,4,5]
+> * 直接定义一个m*n的矩阵，依次按要求不就好了么，是吧
+```cpp
+class Solution {
+public:
+    vector<int> spiralOrder(vector<vector<int>>& matrix) {
+        vector<int> out;
+        if(matrix.size()==0)return out;
+        int num1 = matrix[0].size(),num2 = matrix.size();
+        int lu=0,ru=num1,rd=num2,ld=0;
+        int x=0,y=0;
+        int num = num1*num2;
+        while(num>0){
+            while(y<ru&&num>0){out.push_back(matrix[x][y++]);num--;}
+            y--;x++;
+            ru--;
+            while(x<rd&&num>0){out.push_back(matrix[x++][y]);num--;}
+            x--;y--;
+            rd--;
+            while(y>=ld&&num>0){out.push_back(matrix[x][y--]);num--;}
+            y++;x--;
+            ld++;
+            while(x>lu&&num>0){out.push_back(matrix[x--][y]);num--;}
+            x++;y++;
+            lu++;
+        }
+        return out;
+    }
+};
+```
+----
+### 55. 跳跃游戏
+> * 给定一个非负整数数组，你最初位于数组的第一个位置。
+数组中的每个元素代表你在该位置可以跳跃的最大长度。
+判断你是否能够到达最后一个位置。
+示例 1:
+输入: [2,3,1,1,4]
+输出: true
+解释: 从位置 0 到 1 跳 1 步, 然后跳 3 步到达最后一个位置。
+> * 动态规划来做，根据当前跳跃步数来更新后边几步是否可达，max(reach,i+nums[i]);。直到最后一步到达
+```cpp
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        if(nums.size()<=1) return true;
+        
+        
+        int reach=0;
+        for(int i=0;i<nums.size();i++)
+        {
+            if(i>reach) return false;
+            reach=max(reach,i+nums[i]);
+        }
+        return true;
+    }
+};
+```
+----
+### 60. 第k个排列
+> * 给出集合 [1,2,3,…,n]，其所有元素共有 n! 种排列。
+按大小顺序列出所有排列情况，并一一标记，当 n = 3 时, 所有排列如下：
+"123"
+"132"
+"213"
+"231"
+"312"
+"321"
+给定 n 和 k，返回第 k 个排列。
+> * [详解](https://leetcode.com/problems/permutation-sequence/discuss/22507/%22Explain-like-I'm-five%22-Java-Solution-in-O(n))
+```cpp
+class Solution {
+public:
+    string getPermutation(int n, int k) {
+        vector<int> factorial={1};
+        for(int i=1;i<n;i++)
+        {
+            factorial.push_back(i*factorial.back());
+        }
+        
+        string res="";
+        string dict="";
+        for(int i=1;i<n+1;i++)
+            dict+=i+'0';
+        
+        while(n!=0)
+        {
+            int index=(k-1)/(factorial[n-1]);
+            k-=index*factorial[n-1];
+            res+=dict[index];
+            dict.erase(index,1);
+            n--;
+        }
+        return res;
+        
+    }
+};
+```
+----
+### 61. 旋转链表
+> * 给定一个链表，旋转链表，将链表每个节点向右移动 k 个位置，其中 k 是非负数。
+示例 1:
+输入: 1->2->3->4->5->NULL, k = 2
+输出: 4->5->1->2->3->NULL
+解释:
+向右旋转 1 步: 5->1->2->3->4->NULL
+向右旋转 2 步: 4->5->1->2->3->NULL
+> * m=n-(k)mod(n)是实际需要旋转的位置，即将m-1指向空，末尾节点指向首位就行
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:   
+    ListNode* rotateRight(ListNode* head, int k) {
+        if(!head) return nullptr;
+        if(k==0) return head;
+        if(head && head->next && k != 0)
+        {
+            ListNode* tmp = head;
+            unsigned int size = 1;
+            ListNode* tail = NULL;
+            while(tmp->next)
+            {
+                size++;
+                tmp = tmp->next;
+            }
+            tail = tmp;
+            k = k % size;
+            if(k==0) return head;
+            tmp = head;
+            for(int i = 0; i < size-k-1; i ++)
+            {
+                tmp = tmp->next;
+            }
+            ListNode* newTail = tmp;
+            ListNode* newHead = tmp->next;
+            tail->next = head;
+            newTail->next = NULL;
+            return newHead;
+        }
+        return head;
+        
+    }
+};
+```
+----
+### 62. 不同路径
+> * 一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为“Start” ）。
+机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。
+问总共有多少条不同的路径？
+
+----
